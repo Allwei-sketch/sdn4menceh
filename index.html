@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDN 4 Menceh - Website Resmi Sekolah Dasar Negeri</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM Standalone -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#1e3a8a',
+                            lightblue: '#0284c7',
+                            yellow: '#f59e0b',
+                            green: '#059669',
+                            bgLight: '#f8fafc',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const INITIAL_PROFILE = {
+            name: "SDN 4 Menceh",
+            npsn: "50202653",
+            status: "Sekolah Dasar Negeri",
+            accreditation: "B",
+            address: "Dusun Montong Bunut, Desa Menceh, Kecamatan Sakra Barat, Kabupaten Lombok Timur, Nusa Tenggara Barat",
+            slogan: "Mewujudkan Generasi Cerdas, Berkarakter, Mandiri, dan Berprestasi",
+            headmasterName: "Kepala Sekolah SDN 4 Menceh",
+            headmasterSpeech: "Selamat datang di website resmi SDN 4 Menceh. Website ini kami hadirkan sebagai sarana informasi, komunikasi, dan publikasi kegiatan sekolah untuk memperkuat kolaborasi antara sekolah, orang tua, dan masyarakat dalam mendukung pendidikan peserta didik.",
+            headmasterPhoto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+            history: "SDN 4 Menceh didirikan untuk melayani kebutuhan pendidikan dasar anak-anak di Menceh dan sekitarnya. Berkomitmen membentuk insan yang cerdas dan berakhlak mulia.",
+            vision: "Terwujudnya peserta didik yang cerdas, berkarakter, mandiri, berprestasi, dan berwawasan lingkungan.",
+            mission: [
+                "Menyelenggarakan pembelajaran berorientasi pada pengembangan minat dan bakat siswa.",
+                "Menanamkan nilai-nilai keagamaan, budi pekerti, dan budaya lokal NTB.",
+                "Meningkatkan kemampuan literasi dan numerasi siswa.",
+                "Memanfaatkan teknologi informasi dalam proses pembelajaran.",
+                "Membangun kemitraan yang harmonis dengan orang tua dan masyarakat."
+            ]
+        };
+
+        const INITIAL_STATS = {
+            students: "Data Belum Diisi",
+            teachers: "Data Belum Diisi",
+            classes: "Data Belum Diisi",
+            achievements: "12+"
+        };
+
+        const INITIAL_TEACHERS = [
+            { id: 1, name: "Guru Kelas / Mapel 1", role: "Kepala Sekolah", subject: "Manajerial & Pengajaran", photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300" },
+            { id: 2, name: "Guru Kelas / Mapel 2", role: "Guru Kelas 1", subject: "Guru Kelas", photo: "https://images.unsplash.com/photo-1580894732413-80c763133611?auto=format&fit=crop&q=80&w=300" },
+            { id: 3, name: "Guru Kelas / Mapel 3", role: "Guru Agama Islam", subject: "PAI & Budi Pekerti", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" },
+            { id: 4, name: "Guru Kelas / Mapel 4", role: "Guru PJOK", subject: "Pendidikan Jasmani", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300" }
+        ];
+
+        const INITIAL_NEWS = [
+            { id: 1, title: "Kegiatan Gerakan Literasi Bersama di Lapangan Sekolah", category: "Pembelajaran", date: "02 Oktober 2026", summary: "Seluruh siswa SDN 4 Menceh antusias mengikuti kegiatan membaca buku cerita 15 menit sebelum kegiatan pembelajaran dimulai.", content: "Gerakan Literasi Sekolah di SDN 4 Menceh menjadi kegiatan rutin setiap pagi untuk menumbuhkan minat baca siswa sejak dini. Dihadiri oleh seluruh guru dan siswa.", image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=600" },
+            { id: 2, title: "Persiapan Menghadapi Asesmen Nasional Berbasis Komputer", category: "Informasi", date: "25 September 2026", summary: "Simulasi ANBK berjalan lancar dengan dukungan perangkat pembelajaran digital sekolah.", content: "Siswa kelas 5 mengikuti simulasi ANBK sebagai persiapan menghadapi asesmen nasional. Sekolah terus meningkatkan fasilitas pembelajaran komputer.", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600" },
+            { id: 3, title: "Pembersihan Lingkungan & Gerakan Sekolah Sehat", category: "Kegiatan", date: "18 September 2026", summary: "Gotong royong membersihkan taman dan ruang kelas demi terciptanya lingkungan belajar yang nyaman.", content: "Dalam rangka memperkuat nilai gotong royong dan kebersihan, warga sekolah bergotong royong menata kebun sekolah.", image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600" }
+        ];
+
+        const INITIAL_ANNOUNCEMENTS = [
+            { id: 1, title: "Jadwal Pertemuan Orang Tua & Sosialisasi Program Pembelajaran", date: "10 Oktober 2026", activeUntil: "15 Oktober 2026", content: "Diimbau kepada seluruh orang tua/wali murid untuk menghadiri rapat koordinasi bersama komite sekolah pada Sabtu pekan ini.", file: "Surat_Undangan_Rapat.pdf" },
+            { id: 2, title: "Informasi Penerimaan Peserta Didik Baru (PPDB) Tahun Ajaran Mendatang", date: "01 Oktober 2026", activeUntil: "30 November 2026", content: "Pendaftaran dapat dilakukan langsung secara online melalui portal resmi atau mengunjungi sekretariat PPDB sekolah.", file: "Brosur_PPDB_SDN4Menceh.pdf" }
+        ];
+
+        const INITIAL_PPDB_APPLICANTS = [
+            { id: "REG-001", studentName: "Ahmad Rizki", gender: "Laki-Laki", parentName: "Hasan", parentPhone: "081912345678", date: "2026-10-01", status: "Verified" },
+            { id: "REG-002", studentName: "Siti Nurhaliza", gender: "Perempuan", parentName: "Maryam", parentPhone: "081987654321", date: "2026-10-03", status: "Pending" }
+        ];
+
+        function App() {
+            // Navigation & Page View State
+            const [activeTab, setActiveTab] = useState('beranda');
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+            const [selectedNews, setSelectedNews] = useState(null);
+            
+            // App Data State (Synced to simulate editable backend)
+            const [profile, setProfile] = useState(() => {
+                const saved = localStorage.getItem('sdn4_profile');
+                return saved ? JSON.parse(saved) : INITIAL_PROFILE;
+            });
+            const [stats, setStats] = useState(INITIAL_STATS);
+            const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
+            const [news, setNews] = useState(INITIAL_NEWS);
+            const [announcements, setAnnouncements] = useState(INITIAL_ANNOUNCEMENTS);
+            const [ppdbApplicants, setPpdbApplicants] = useState(INITIAL_PPDB_APPLICANTS);
+            
+            // Search & Filter State
+            const [teacherSearch, setTeacherSearch] = useState('');
+            const [teacherFilter, setTeacherFilter] = useState('Semua');
+            const [newsCategory, setNewsCategory] = useState('Semua');
+
+            // Admin Authentication & Modal State
+            const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+            const [showLoginModal, setShowLoginModal] = useState(false);
+            const [adminUsername, setAdminUsername] = useState('');
+            const [adminPassword, setAdminPassword] = useState('');
+            const [toastMessage, setToastMessage] = useState('');
+
+            // PPDB Form State
+            const [ppdbForm, setPpdbForm] = useState({
+                studentName: '',
+                gender: 'Laki-Laki',
+                birthPlace: '',
+                birthDate: '',
+                parentName: '',
+                whatsapp: '',
+                address: '',
+                consent: false
+            });
+            const [ppdbSuccessMsg, setPpdbSuccessMsg] = useState(null);
+
+            // AI Chat Assistant State
+            const [aiChatOpen, setAiChatOpen] = useState(false);
+            const [chatMessages, setChatMessages] = useState([
+                { sender: 'bot', text: 'Halo! Saya Sahabat Belajar SDN 4 Menceh. Ada yang bisa saya bantu terkait informasi sekolah atau pelajaran?' }
+            ]);
+            const [chatInput, setChatInput] = useState('');
+            const [chatLoading, setChatLoading] = useState(false);
+
+            // Lucide Icon Initializer
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            // Save Profile changes
+            const saveProfile = (newProfile) => {
+                setProfile(newProfile);
+                localStorage.setItem('sdn4_profile', JSON.stringify(newProfile));
+                showToast("Profil sekolah berhasil diperbarui!");
+            };
+
+            const showToast = (msg) => {
+                setToastMessage(msg);
+                setTimeout(() => setToastMessage(''), 3500);
+            };
+
+            // Admin Login Action
+            const handleAdminLogin = (e) => {
+                e.preventDefault();
+                if (adminUsername === 'admin' && adminPassword === 'sakra4321') {
+                    setIsAdminLoggedIn(true);
+                    setShowLoginModal(false);
+                    setActiveTab('admin-dashboard');
+                    showToast("Login Admin Berhasil!");
+                } else {
+                    alert("Kredensial salah! Gunakan: Username = admin, Password = sakra4321 (Demo)");
+                }
+            };
+
+            // PPDB Form Submission
+            const handlePPDBSubmit = (e) => {
+                e.preventDefault();
+                if (!ppdbForm.consent) {
+                    alert("Harap menyetujui pernyataan perlindungan data orang tua / wali.");
+                    return;
+                }
+                const newCode = `REG-00${ppdbApplicants.length + 1}`;
+                const newRecord = {
+                    id: newCode,
+                    studentName: ppdbForm.studentName,
+                    gender: ppdbForm.gender,
+                    parentName: ppdbForm.parentName,
+                    parentPhone: ppdbForm.whatsapp,
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'Pending'
+                };
+                setPpdbApplicants([newRecord, ...ppdbApplicants]);
+                setPpdbSuccessMsg({
+                    code: newCode,
+                    name: ppdbForm.studentName
+                });
+                setPpdbForm({
+                    studentName: '', gender: 'Laki-Laki', birthPlace: '', birthDate: '', parentName: '', whatsapp: '', address: '', consent: false
+                });
+            };
+
+            const handleSendMessage = async () => {
+                if (!chatInput.trim()) return;
+                const userText = chatInput;
+                setChatMessages(prev => [...prev, { sender: 'user', text: userText }]);
+                setChatInput('');
+                setChatLoading(true);
+
+                try {
+                    const apiKey = ""; // API Key automatically provided in runtime if empty
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                    
+                    const systemPrompt = `Anda adalah "Sahabat Belajar", asisten virtual resmi SDN 4 Menceh di Lombok Timur, NTB. Slogan sekolah: "Mewujudkan Generasi Cerdas, Berkarakter, Mandiri, dan Berprestasi". Berikan jawaban yang ramah, santun, mendidik, dan jelas dalam Bahasa Indonesia untuk membantu pertanyaan siswa, orang tua, atau guru.`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: userText }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    };
+
+                    const res = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Terima kasih atas pertanyaannya. Silakan hubungi pihak sekolah secara langsung untuk informasi lebih detail.";
+                    setChatMessages(prev => [...prev, { sender: 'bot', text: reply }]);
+                } catch (err) {
+                    setChatMessages(prev => [...prev, { sender: 'bot', text: "Mohon maaf, layanan AI sedang mengalami kendala jaringan. Silakan coba kembali." }]);
+                } finally {
+                    setChatLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col justify-between">
+                    {/* Top Bar Info */}
+                    <div className="bg-brand-blue text-white text-xs py-2 px-4 shadow-sm">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+                            <div className="flex items-center gap-4 flex-wrap justify-center md:justify-start">
+                                <span className="flex items-center gap-1"><i data-lucide="map-pin" className="w-3.5 h-3.5 text-brand-yellow"></i> Menceh, Lombok Timur, NTB</span>
+                                <span className="flex items-center gap-1"><i data-lucide="mail" className="w-3.5 h-3.5 text-brand-yellow"></i> info@sdn4menceh.sch.id (Placeholder)</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {isAdminLoggedIn ? (
+                                    <div className="flex items-center gap-2">
+                                        <span className="bg-emerald-600 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Admin Active</span>
+                                        <button onClick={() => setActiveTab('admin-dashboard')} className="hover:underline text-brand-yellow">Dashboard</button>
+                                        <button onClick={() => setIsAdminLoggedIn(false)} className="text-red-300 hover:text-red-100 ml-2">Logout</button>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => setShowLoginModal(true)} className="flex items-center gap-1 hover:text-brand-yellow transition">
+                                        <i data-lucide="lock" className="w-3 h-3"></i> Portal Admin
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Main Header */}
+                    <header className="bg-white shadow-md sticky top-0 z-40">
+                        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                            {/* Logo & School Name */}
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('beranda')}>
+                                <div className="w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center text-white font-extrabold text-xl shadow-inner border-2 border-brand-yellow">
+                                    <i data-lucide="graduation-cap" className="w-7 h-7 text-brand-yellow"></i>
+                                </div>
+                                <div>
+                                    <h1 className="text-lg md:text-xl font-bold text-brand-blue leading-tight">{profile.name}</h1>
+                                    <p className="text-xs text-slate-500 font-medium">Sekolah Dasar Negeri • Kabupaten Lombok Timur</p>
+                                </div>
+                            </div>
+
+                            {/* Desktop Nav */}
+                            <nav className="hidden lg:flex items-center gap-1 font-medium text-sm text-slate-700">
+                                {[
+                                    { id: 'beranda', label: 'Beranda' },
+                                    { id: 'profil', label: 'Profil' },
+                                    { id: 'guru', label: 'Guru & Tendik' },
+                                    { id: 'akademik', label: 'Akademik' },
+                                    { id: 'program', label: 'Program' },
+                                    { id: 'prestasi', label: 'Prestasi' },
+                                    { id: 'berita', label: 'Berita' },
+                                    { id: 'pengumuman', label: 'Pengumuman' },
+                                    { id: 'galeri', label: 'Galeri' },
+                                    { id: 'kontak', label: 'Kontak' },
+                                ].map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { setActiveTab(item.id); setSelectedNews(null); }}
+                                        className={`px-3 py-2 rounded-lg transition ${activeTab === item.id ? 'bg-blue-50 text-brand-blue font-bold' : 'hover:bg-slate-100'}`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setActiveTab('ppdb')}
+                                    className="ml-2 bg-gradient-to-r from-brand-yellow to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold px-4 py-2 rounded-xl shadow-sm text-sm transition transform hover:-translate-y-0.5 flex items-center gap-1.5"
+                                >
+                                    <i data-lucide="user-plus" className="w-4 h-4"></i> Informasi PPDB
+                                </button>
+                            </nav>
+
+                            {/* Mobile Hamburger Button */}
+                            <button
+                                className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            >
+                                <i data-lucide={mobileMenuOpen ? "x" : "menu"} className="w-6 h-6"></i>
+                            </button>
+                        </div>
+
+                        {/* Mobile Dropdown Menu */}
+                        {mobileMenuOpen && (
+                            <div className="lg:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-2 shadow-lg animate-fade-in">
+                                {[
+                                    { id: 'beranda', label: 'Beranda' },
+                                    { id: 'profil', label: 'Profil Sekolah' },
+                                    { id: 'guru', label: 'Guru & Tenaga Kependidikan' },
+                                    { id: 'akademik', label: 'Akademik' },
+                                    { id: 'program', label: 'Program Sekolah' },
+                                    { id: 'prestasi', label: 'Prestasi' },
+                                    { id: 'berita', label: 'Berita & Kegiatan' },
+                                    { id: 'pengumuman', label: 'Pengumuman' },
+                                    { id: 'galeri', label: 'Galeri' },
+                                    { id: 'kontak', label: 'Kontak' },
+                                ].map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); setSelectedNews(null); }}
+                                        className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${activeTab === item.id ? 'bg-blue-50 text-brand-blue font-bold' : 'text-slate-700'}`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => { setActiveTab('ppdb'); setMobileMenuOpen(false); }}
+                                    className="block w-full text-center bg-brand-yellow text-slate-900 font-bold px-4 py-2.5 rounded-xl shadow-sm text-sm mt-2"
+                                >
+                                    Informasi PPDB Online
+                                </button>
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Toast Notification */}
+                    {toastMessage && (
+                        <div className="fixed bottom-20 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in">
+                            <i data-lucide="check-circle" className="w-5 h-5 text-emerald-400"></i>
+                            <span className="text-sm font-medium">{toastMessage}</span>
+                        </div>
+                    )}
+
+                    {}
+                    <main className="flex-grow">
+                        {/* 1. BERANDA PAGE */}
+                        {activeTab === 'beranda' && (
+                            <div>
+                                {/* Hero Section */}
+                                <section className="relative bg-gradient-to-r from-brand-blue to-blue-900 text-white py-16 md:py-24 px-4 overflow-hidden">
+                                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                                    <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center relative z-10">
+                                        <div className="space-y-6 text-center md:text-left">
+                                            <span className="inline-block bg-yellow-400/20 text-yellow-300 font-semibold text-xs px-3 py-1 rounded-full border border-yellow-400/30">
+                                                 Official Website • Menceh, Lombok Timur
+                                            </span>
+                                            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight">
+                                                Selamat Datang di <span className="text-brand-yellow">{profile.name}</span>
+                                            </h2>
+                                            <p className="text-slate-200 text-base md:text-lg">
+                                                Tempat Tumbuh, Belajar, Berkarya, dan Meraih Prestasi untuk Masa Depan Gemilang.
+                                            </p>
+                                            <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
+                                                <button onClick={() => setActiveTab('profil')} className="bg-white text-brand-blue font-bold px-5 py-3 rounded-xl shadow hover:bg-slate-100 transition text-sm">
+                                                    Jelajahi Profil Sekolah
+                                                </button>
+                                                <button onClick={() => setActiveTab('berita')} className="bg-brand-blue/80 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl shadow hover:bg-brand-blue transition text-sm">
+                                                    Lihat Kegiatan Sekolah
+                                                </button>
+                                                <button onClick={() => setActiveTab('ppdb')} className="bg-brand-yellow text-slate-900 font-bold px-5 py-3 rounded-xl shadow hover:bg-amber-400 transition text-sm">
+                                                    Informasi PPDB
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-center">
+                                            <div className="relative w-full max-w-md bg-white/10 p-3 rounded-3xl backdrop-blur-sm border border-white/20 shadow-2xl">
+                                                <img 
+                                                    src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800" 
+                                                    alt="Suasana Belajar SDN 4 Menceh" 
+                                                    className="rounded-2xl object-cover h-64 md:h-80 w-full shadow"
+                                                />
+                                                <div className="absolute -bottom-4 -left-4 bg-white text-slate-800 p-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-100">
+                                                    <div className="bg-amber-100 text-amber-700 p-2 rounded-xl">
+                                                        <i data-lucide="award" className="w-6 h-6"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-slate-500 font-medium">Slogan Kami</p>
+                                                        <p className="text-xs font-bold text-brand-blue">Cerdas, Berkarakter & Mandiri</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Sambutan Kepala Sekolah */}
+                                <section className="py-12 bg-white px-4 border-b border-slate-100">
+                                    <div className="max-w-5xl mx-auto bg-slate-50 rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+                                        <img 
+                                            src={profile.headmasterPhoto} 
+                                            alt="Foto Kepala Sekolah" 
+                                            className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-white shadow-md flex-shrink-0"
+                                        />
+                                        <div className="space-y-3 text-center md:text-left">
+                                            <div className="inline-flex items-center gap-2 text-brand-blue font-semibold text-xs bg-blue-100 px-3 py-1 rounded-full">
+                                                <i data-lucide="quote" className="w-3.5 h-3.5"></i> Sambutan Resmi
+                                            </div>
+                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{profile.headmasterName}</h3>
+                                            <p className="text-slate-600 text-sm leading-relaxed italic">
+                                                "{profile.headmasterSpeech}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Statistik Sekolah Card */}
+                                <section className="py-12 px-4 max-w-7xl mx-auto">
+                                    <div className="text-center max-w-2xl mx-auto mb-8">
+                                        <h3 className="text-2xl font-bold text-slate-800">Statistik SDN 4 Menceh</h3>
+                                        <p className="text-xs text-slate-500 mt-1">*Data resmi yang belum tersedia diberi keterangan penanda.</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {[
+                                            { label: 'Jumlah Siswa', value: stats.students, icon: 'users', color: 'bg-blue-500' },
+                                            { label: 'Guru & Tendik', value: stats.teachers, icon: 'user-check', color: 'bg-emerald-500' },
+                                            { label: 'Rombongan Belajar', value: stats.classes, icon: 'book-open', color: 'bg-amber-500' },
+                                            { label: 'Prestasi Diraih', value: stats.achievements, icon: 'trophy', color: 'bg-indigo-500' },
+                                        ].map((stat, idx) => (
+                                            <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm text-center space-y-2 hover:shadow-md transition">
+                                                <div className={`w-10 h-10 ${stat.color} text-white rounded-xl mx-auto flex items-center justify-center shadow-sm`}>
+                                                    <i data-lucide={stat.icon} className="w-5 h-5"></i>
+                                                </div>
+                                                <p className="text-lg md:text-xl font-extrabold text-slate-800">{stat.value}</p>
+                                                <p className="text-xs text-slate-500 font-medium">{stat.label}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Program Unggulan */}
+                                <section className="py-12 bg-slate-50 px-4">
+                                    <div className="max-w-7xl mx-auto space-y-8">
+                                        <div className="text-center max-w-2xl mx-auto">
+                                            <span className="text-brand-blue font-bold text-xs uppercase tracking-wider">Keunggulan Pembelajaran</span>
+                                            <h3 className="text-2xl font-bold text-slate-800 mt-1">Program Unggulan Sekolah</h3>
+                                        </div>
+                                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {[
+                                                { title: 'Gerakan Literasi Sekolah', desc: 'Meningkatkan minat membaca dan menulis melalui pojok baca kelas dan membaca bersama pagi hari.', icon: 'book' },
+                                                { title: 'Penguatan Numerasi', desc: 'Latihan penalaran matematika kontekstual yang menyenangkan dalam kehidupan sehari-hari.', icon: 'calculator' },
+                                                { title: 'Pendidikan Karakter', desc: 'Pembiasaan 5S (Senyum, Salam, Sapa, Sopan, Santun) serta nilai kedisiplinan dan keagamaan.', icon: 'heart' },
+                                                { title: 'Pembelajaran Digital', desc: 'Pengenalan teknologi informasi awal bagi murid untuk mendukung era digitalisasi sekolah.', icon: 'laptop' },
+                                                { title: 'Pengembangan Bakat', desc: 'Wadah pembinaan ekstrakurikuler seni, olahraga, dan kepramukaan.', icon: 'sparkles' },
+                                                { title: 'Sekolah Bersih & Sehat', desc: 'Edukasi pola hidup bersih dan sehat serta pemeliharaan taman sekolah.', icon: 'sun' },
+                                            ].map((prog, idx) => (
+                                                <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 hover:border-brand-blue transition">
+                                                    <div className="w-10 h-10 bg-blue-100 text-brand-blue rounded-xl flex items-center justify-center font-bold">
+                                                        <i data-lucide={prog.icon} className="w-5 h-5"></i>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 text-base">{prog.title}</h4>
+                                                    <p className="text-xs text-slate-600 leading-relaxed">{prog.desc}</p>
+                                                    <button onClick={() => setActiveTab('program')} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline pt-2">
+                                                        Detail Program <i data-lucide="chevron-right" className="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Berita Terbaru */}
+                                <section className="py-12 px-4 max-w-7xl mx-auto space-y-8">
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <span className="text-brand-blue font-bold text-xs uppercase tracking-wider">Publikasi Informasi</span>
+                                            <h3 className="text-2xl font-bold text-slate-800 mt-1">Berita & Kegiatan Terbaru</h3>
+                                        </div>
+                                        <button onClick={() => setActiveTab('berita')} className="text-xs font-bold text-brand-blue hover:underline hidden sm:block">
+                                            Lihat Semua Berita →
+                                        </button>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        {news.slice(0, 3).map((item) => (
+                                            <div key={item.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
+                                                <img src={item.image} alt={item.title} className="h-44 w-full object-cover" />
+                                                <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="bg-blue-100 text-brand-blue font-bold px-2.5 py-0.5 rounded-full">{item.category}</span>
+                                                            <span className="text-slate-400">{item.date}</span>
+                                                        </div>
+                                                        <h4 className="font-bold text-slate-800 text-sm line-clamp-2">{item.title}</h4>
+                                                        <p className="text-xs text-slate-600 line-clamp-2">{item.summary}</p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => { setSelectedNews(item); setActiveTab('berita'); }} 
+                                                        className="text-xs font-bold text-brand-blue hover:underline text-left pt-2 flex items-center gap-1"
+                                                    >
+                                                        Baca Selengkapnya <i data-lucide="arrow-right" className="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Ajakan Kolaborasi Banner */}
+                                <section className="py-12 px-4 max-w-7xl mx-auto">
+                                    <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-8 text-slate-900 flex flex-col md:flex-row justify-between items-center gap-6 shadow-lg">
+                                        <div className="space-y-2 text-center md:text-left">
+                                            <h3 className="text-2xl font-extrabold">Bersama SDN 4 Menceh</h3>
+                                            <p className="text-sm font-medium text-slate-800">Wujudkan Pendidikan yang Berkualitas, Berkarakter, dan Berbudaya Lokal.</p>
+                                        </div>
+                                        <button onClick={() => setActiveTab('kontak')} className="bg-brand-blue text-white font-bold px-6 py-3 rounded-xl shadow hover:bg-blue-900 transition text-sm flex-shrink-0">
+                                            Hubungi Sekolah
+                                        </button>
+                                    </div>
+                                </section>
+                            </div>
+                        )}
+
+                        {/* 2. PROFIL SEKOLAH PAGE */}
+                        {activeTab === 'profil' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-10 animate-fade-in">
+                                <div className="border-b border-slate-200 pb-4">
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Profil Sekolah</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Mengenal lebih dekat identitas, visi, dan misi {profile.name}</p>
+                                </div>
+
+                                {/* Identitas Resmi Table */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                        <i data-lucide="file-text" className="text-brand-blue"></i> Identitas Resmi Sekolah
+                                    </h3>
+                                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                                        <div className="p-3 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-slate-400">Nama Sekolah</p>
+                                            <p className="font-bold text-slate-800">{profile.name}</p>
+                                        </div>
+                                        <div className="p-3 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-slate-400">NPSN</p>
+                                            <p className="font-bold text-amber-600">{profile.npsn}</p>
+                                        </div>
+                                        <div className="p-3 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-slate-400">Status Sekolah</p>
+                                            <p className="font-bold text-slate-800">{profile.status}</p>
+                                        </div>
+                                        <div className="p-3 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-slate-400">Akreditasi</p>
+                                            <p className="font-bold text-amber-600">{profile.accreditation}</p>
+                                        </div>
+                                        <div className="p-3 bg-slate-50 rounded-xl md:col-span-2">
+                                            <p className="text-xs text-slate-400">Alamat Lengkap</p>
+                                            <p className="font-semibold text-slate-800">{profile.address}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sejarah Sekolah */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                        <i data-lucide="history" className="text-brand-blue"></i> Sejarah Sekolah
+                                    </h3>
+                                    <p className="text-sm text-slate-600 leading-relaxed">{profile.history}</p>
+                                </div>
+
+                                {/* Visi & Misi */}
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="bg-blue-50/60 p-6 rounded-2xl border border-blue-100 space-y-3">
+                                        <h3 className="text-lg font-bold text-brand-blue flex items-center gap-2">
+                                            <i data-lucide="compass"></i> Visi Sekolah
+                                        </h3>
+                                        <p className="text-sm font-semibold text-slate-800 italic bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                                            "{profile.vision}"
+                                        </p>
+                                    </div>
+                                    <div className="bg-amber-50/60 p-6 rounded-2xl border border-amber-100 space-y-3">
+                                        <h3 className="text-lg font-bold text-amber-700 flex items-center gap-2">
+                                            <i data-lucide="target"></i> Misi Sekolah
+                                        </h3>
+                                        <ul className="space-y-2 text-xs text-slate-700">
+                                            {profile.mission.map((m, idx) => (
+                                                <li key={idx} className="flex gap-2 items-start bg-white p-2.5 rounded-lg border border-amber-100">
+                                                    <span className="font-bold text-amber-600">{idx + 1}.</span>
+                                                    <span>{m}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. GURU DAN TENDIK PAGE */}
+                        {activeTab === 'guru' && (
+                            <div className="max-w-7xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Guru & Tenaga Kependidikan</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Direktori pengajar dan staf profesional SDN 4 Menceh.</p>
+                                </div>
+
+                                {/* Search and Filter Controls */}
+                                <div className="flex flex-col sm:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                                    <div className="relative flex-grow max-w-md">
+                                        <i data-lucide="search" className="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Cari nama guru..." 
+                                            value={teacherSearch}
+                                            onChange={(e) => setTeacherSearch(e.target.value)}
+                                            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-blue"
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {['Semua', 'Kepala Sekolah', 'Guru Kelas', 'Guru PAI', 'Guru PJOK'].map((f) => (
+                                            <button 
+                                                key={f}
+                                                onClick={() => setTeacherFilter(f)}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${teacherFilter === f ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                            >
+                                                {f}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Teacher Cards Grid */}
+                                <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                    {teachers
+                                        .filter(t => t.name.toLowerCase().includes(teacherSearch.toLowerCase()))
+                                        .filter(t => teacherFilter === 'Semua' || t.role.includes(teacherFilter))
+                                        .map((teacher) => (
+                                            <div key={teacher.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden text-center p-5 space-y-3">
+                                                <img src={teacher.photo} alt={teacher.name} className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-brand-yellow" />
+                                                <div>
+                                                    <h4 className="font-bold text-slate-800 text-sm">{teacher.name}</h4>
+                                                    <p className="text-xs font-semibold text-brand-blue mt-0.5">{teacher.role}</p>
+                                                    <p className="text-[11px] text-slate-400 mt-1">Bidang: {teacher.subject}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                </div>
+                                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                                    <i data-lucide="shield-alert" className="w-4 h-4 flex-shrink-0"></i>
+                                    <span>Demi keamanan dan perlindungan privasi, informasi pribadi nomor HP dan alamat rumah pendidik tidak dipublikasikan secara umum.</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. AKADEMIK PAGE */}
+                        {activeTab === 'akademik' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Informasi Akademik</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Panduan kurikulum, kalender pendidikan, dan sumber belajar siswa.</p>
+                                </div>
+
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                        <div className="w-10 h-10 bg-blue-100 text-brand-blue rounded-xl flex items-center justify-center font-bold">
+                                            <i data-lucide="book-open" className="w-5 h-5"></i>
+                                        </div>
+                                        <h3 className="font-bold text-slate-800">Kurikulum Merdeka</h3>
+                                        <p className="text-xs text-slate-600">Sekolah menerapkan Kurikulum Merdeka yang berfokus pada pengembangan minat, bakat, dan karakter Pancasila.</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                        <div className="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center font-bold">
+                                            <i data-lucide="calendar" className="w-5 h-5"></i>
+                                        </div>
+                                        <h3 className="font-bold text-slate-800">Kalender Pendidikan</h3>
+                                        <p className="text-xs text-slate-600">Jadwal kegiatan belajar semester ganjil/genap, ujian asesmen, dan libur resmi sekolah.</p>
+                                        <button onClick={() => alert("Dokumen Kalender Pendidikan dapat diunduh pada panel pengumuman.")} className="text-xs font-bold text-brand-blue hover:underline">
+                                            Unduh Dokumen (PDF)
+                                        </button>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                        <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-bold">
+                                            <i data-lucide="award" className="w-5 h-5"></i>
+                                        </div>
+                                        <h3 className="font-bold text-slate-800">Program Asesmen</h3>
+                                        <p className="text-xs text-slate-600">Evaluasi belajar berkala, Asesmen Sumatif Akhir Semester, dan persiapam ANBK untuk kelas tinggi.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5. PROGRAM SEKOLAH PAGE */}
+                        {activeTab === 'program' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Program Sekolah</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Inisiatif strategis SDN 4 Menceh dalam mencetak generasi unggul.</p>
+                                </div>
+                                <div className="space-y-4">
+                                    {[
+                                        { title: "Gerakan Literasi & Numerasi", status: "Berjalan Aktif", desc: "Pembiasaan membaca buku non-pelajaran 15 menit setiap pagi dan tantangan matematika dasar ceria." },
+                                        { title: "Pembentukan Karakter & Disiplin", status: "Berjalan Aktif", desc: "Upacara bendera rutin, doa bersama sebelum dan sesudah belajar, serta latihan kepemimpinan pramuka." },
+                                        { title: "Sekolah Bersih & Lingkungan Hijau", status: "Berjalan Aktif", desc: "Penanaman pohon mini di halaman sekolah dan pemilahan sampah organik & anorganik." }
+                                    ].map((prog, idx) => (
+                                        <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <h3 className="font-bold text-slate-800 text-base">{prog.title}</h3>
+                                                <p className="text-xs text-slate-600">{prog.desc}</p>
+                                            </div>
+                                            <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-1 rounded-full flex-shrink-0">
+                                                {prog.status}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 6. PRESTASI PAGE */}
+                        {activeTab === 'prestasi' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Prestasi Sekolah & Siswa</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Dokumentasi kebanggaan dan pencapaian civitas akademika SDN 4 Menceh.</p>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    {[
+                                        { title: "Juara Lomba Seni / Olahraga Tk. Kecamatan", year: "2025", category: "Olahraga", desc: "Diikuti oleh perwakilan siswa SDN 4 Menceh dengan semangat sportifitas tinggi." },
+                                        { title: "Penghargaan Sekolah Sahabat Literasi", year: "2025", category: "Akademik", desc: "Apresiasi atas konsistensi sekolah menjalankan jam membaca rutin." }
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">{item.category}</span>
+                                                <span className="text-slate-400 font-bold">{item.year}</span>
+                                            </div>
+                                            <h3 className="font-bold text-slate-800 text-base">{item.title}</h3>
+                                            <p className="text-xs text-slate-600">{item.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 7. BERITA & KEGIATAN PAGE */}
+                        {activeTab === 'berita' && (
+                            <div className="max-w-7xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Berita & Kegiatan</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Informasi terkini kegiatan pembelajaran dan peristiwa di sekolah.</p>
+                                </div>
+
+                                {selectedNews ? (
+                                    /* Detail News View */
+                                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-md space-y-6 max-w-4xl mx-auto">
+                                        <button 
+                                            onClick={() => setSelectedNews(null)} 
+                                            className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline"
+                                        >
+                                            ← Kembali ke Daftar Berita
+                                        </button>
+                                        <img src={selectedNews.image} alt={selectedNews.title} className="w-full h-80 object-cover rounded-2xl" />
+                                        <div className="space-y-3">
+                                            <div className="flex gap-3 text-xs">
+                                                <span className="bg-blue-100 text-brand-blue font-bold px-3 py-1 rounded-full">{selectedNews.category}</span>
+                                                <span className="text-slate-400 py-1">{selectedNews.date}</span>
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-slate-800">{selectedNews.title}</h3>
+                                            <p className="text-sm text-slate-700 leading-relaxed pt-4 border-t border-slate-100">{selectedNews.content}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* News Grid */
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        {news.map((item) => (
+                                            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
+                                                <img src={item.image} alt={item.title} className="h-48 w-full object-cover" />
+                                                <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="bg-blue-100 text-brand-blue font-bold px-2.5 py-0.5 rounded-full">{item.category}</span>
+                                                            <span className="text-slate-400">{item.date}</span>
+                                                        </div>
+                                                        <h4 className="font-bold text-slate-800 text-sm">{item.title}</h4>
+                                                        <p className="text-xs text-slate-600 line-clamp-3">{item.summary}</p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setSelectedNews(item)} 
+                                                        className="text-xs font-bold text-brand-blue hover:underline text-left pt-2"
+                                                    >
+                                                        Baca Selengkapnya →
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* 8. PENGUMUMAN PAGE */}
+                        {activeTab === 'pengumuman' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Pengumuman Resmi</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Pemberitahuan penting dari pihak manajemen SDN 4 Menceh.</p>
+                                </div>
+                                <div className="space-y-4">
+                                    {announcements.map((ann) => (
+                                        <div key={ann.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">Penting</span>
+                                                <span className="text-slate-400">Diterbitkan: {ann.date}</span>
+                                            </div>
+                                            <h3 className="font-bold text-slate-800 text-base">{ann.title}</h3>
+                                            <p className="text-xs text-slate-600">{ann.content}</p>
+                                            <div className="pt-2 flex justify-between items-center text-xs border-t border-slate-100">
+                                                <span className="text-slate-400">Berlaku sampai: {ann.activeUntil}</span>
+                                                <button onClick={() => alert(`Mengunduh file: ${ann.file}`)} className="text-brand-blue font-bold hover:underline flex items-center gap-1">
+                                                    <i data-lucide="download" className="w-3.5 h-3.5"></i> Unduh Lampiran
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 9. GALERI PAGE */}
+                        {activeTab === 'galeri' && (
+                            <div className="max-w-7xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Galeri Kegiatan</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Dokumentasi foto dan video lingkungan belajar di SDN 4 Menceh.</p>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {[
+                                        { title: "Kegiatan Belajar", url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=500" },
+                                        { title: "Praktik Komputer", url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=500" },
+                                        { title: "Gotong Royong", url: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=500" },
+                                        { title: "Halaman Sekolah", url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=500" }
+                                    ].map((img, idx) => (
+                                        <div key={idx} className="relative group overflow-hidden rounded-2xl shadow-sm border border-slate-200">
+                                            <img src={img.url} alt={img.title} className="h-48 w-full object-cover group-hover:scale-105 transition duration-300" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-3">
+                                                <span className="text-white text-xs font-bold">{img.title}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 10. KONTAK PAGE */}
+                        {activeTab === 'kontak' && (
+                            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-brand-blue">Hubungi Sekolah</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Layanan informasi dan komunikasi resmi SDN 4 Menceh.</p>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                                        <h3 className="font-bold text-slate-800 text-lg">Informasi Kontak</h3>
+                                        <div className="space-y-4 text-sm">
+                                            <div className="flex gap-3 items-start">
+                                                <div className="bg-blue-100 p-2 rounded-xl text-brand-blue">
+                                                    <i data-lucide="map-pin" className="w-5 h-5"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-800">Alamat</p>
+                                                    <p className="text-xs text-slate-600">{profile.address}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-3 items-start">
+                                                <div className="bg-blue-100 p-2 rounded-xl text-brand-blue">
+                                                    <i data-lucide="clock" className="w-5 h-5"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-800">Jam Pelayanan</p>
+                                                    <p className="text-xs text-slate-600">Senin - Sabtu: 07.30 - 13.00 WITA</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-4 border-t border-slate-100 space-y-3">
+                                            <p className="text-xs text-slate-500 font-medium">Layanan Pesan Otomatis WhatsApp Sekolah:</p>
+                                            <a 
+                                                href="https://wa.me/?text=Halo%20SDN%204%20Menceh,%20saya%20ingin%20mendapatkan%20informasi%20mengenai%20sekolah.%20Terima%20kasih." 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 bg-emerald-600 text-white px-5 py-3 rounded-xl text-xs font-bold hover:bg-emerald-700 transition w-full justify-center shadow-sm"
+                                            >
+                                                <i data-lucide="message-circle" className="w-4 h-4"></i> Kirim WhatsApp Otomatis
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    {/* Contact Form */}
+                                    <form onSubmit={(e) => { e.preventDefault(); showToast("Pesan Anda telah dikirim ke admin sekolah!"); e.target.reset(); }} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                        <h3 className="font-bold text-slate-800 text-lg">Kirim Pesan</h3>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-600 mb-1">Nama Lengkap</label>
+                                            <input type="text" required className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-600 mb-1">Email / WhatsApp</label>
+                                            <input type="text" required className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-600 mb-1">Pesan / Pertanyaan</label>
+                                            <textarea rows="4" required className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"></textarea>
+                                        </div>
+                                        <button type="submit" className="w-full bg-brand-blue text-white py-3 rounded-xl font-bold text-xs hover:bg-blue-900 transition">
+                                            Kirim Pesan
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 11. PPDB ONLINE PAGE */}
+                        {activeTab === 'ppdb' && (
+                            <div className="max-w-4xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
+                                <div className="bg-gradient-to-r from-brand-blue to-blue-900 text-white p-8 rounded-3xl shadow-md space-y-3 text-center md:text-left">
+                                    <span className="bg-brand-yellow text-slate-900 font-bold text-[10px] px-3 py-1 rounded-full uppercase">Penerimaan Peserta Didik Baru</span>
+                                    <h2 className="text-2xl md:text-3xl font-extrabold">PPDB Online SDN 4 Menceh</h2>
+                                    <p className="text-xs md:text-sm text-slate-200">
+                                        Selamat datang calon peserta didik baru. Silakan melengkapi formulir pendaftaran di bawah ini.
+                                    </p>
+                                </div>
+
+                                {ppdbSuccessMsg ? (
+                                    <div className="bg-emerald-50 border-2 border-emerald-300 p-6 rounded-2xl text-center space-y-4 animate-fade-in">
+                                        <div className="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-xl">
+                                            ✓
+                                        </div>
+                                        <h3 className="text-xl font-bold text-emerald-900">Pendaftaran Berhasil Dikirim!</h3>
+                                        <p className="text-xs text-emerald-800">
+                                            Terima kasih, data calon siswa <span className="font-bold">{ppdbSuccessMsg.name}</span> telah tersimpan sementara di sistem draft dengan Nomor Registrasi:
+                                        </p>
+                                        <div className="inline-block bg-white border border-emerald-300 px-6 py-2 rounded-xl text-lg font-mono font-bold text-emerald-700">
+                                            {ppdbSuccessMsg.code}
+                                        </div>
+                                        <p className="text-[11px] text-slate-500">
+                                            *Catatan Demonstrasi: Data tersimpan secara lokal dan dapat diverifikasi melalui Portal Admin Dashboard.
+                                        </p>
+                                        <button onClick={() => setPpdbSuccessMsg(null)} className="mt-2 text-xs font-bold text-brand-blue underline">
+                                            Isi Formulir Baru
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handlePPDBSubmit} className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                                        <h3 className="text-lg font-bold text-slate-800 border-b pb-3">Formulir Data Calon Siswa</h3>
+                                        
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Nama Lengkap Calon Siswa *</label>
+                                                <input 
+                                                    type="text" 
+                                                    required 
+                                                    value={ppdbForm.studentName}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, studentName: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                    placeholder="Sesuai Akta Kelahiran"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Jenis Kelamin *</label>
+                                                <select 
+                                                    value={ppdbForm.gender}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, gender: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none bg-white"
+                                                >
+                                                    <option value="Laki-Laki">Laki-Laki</option>
+                                                    <option value="Perempuan">Perempuan</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Tempat Lahir</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={ppdbForm.birthPlace}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, birthPlace: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                    placeholder="Contoh: Menceh"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Tanggal Lahir</label>
+                                                <input 
+                                                    type="date" 
+                                                    value={ppdbForm.birthDate}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, birthDate: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <h3 className="text-lg font-bold text-slate-800 border-b pb-3 pt-2">Data Orang Tua / Wali</h3>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Nama Orang Tua / Wali *</label>
+                                                <input 
+                                                    type="text" 
+                                                    required 
+                                                    value={ppdbForm.parentName}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, parentName: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Nomor WhatsApp *</label>
+                                                <input 
+                                                    type="tel" 
+                                                    required 
+                                                    value={ppdbForm.whatsapp}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, whatsapp: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                    placeholder="08xxxxxxxxxx"
+                                                />
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Alamat Tempat Tinggal *</label>
+                                                <textarea 
+                                                    rows="3" 
+                                                    required 
+                                                    value={ppdbForm.address}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, address: e.target.value})}
+                                                    className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:border-brand-blue focus:outline-none"
+                                                    placeholder="RT/RW, Dusun, Desa Menceh"
+                                                ></textarea>
+                                            </div>
+                                        </div>
+
+                                        {/* Parental Consent Notice */}
+                                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2 text-xs text-amber-900">
+                                            <label className="flex items-start gap-2 cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={ppdbForm.consent}
+                                                    onChange={(e) => setPpdbForm({...ppdbForm, consent: e.target.checked})}
+                                                    className="mt-0.5"
+                                                />
+                                                <span>
+                                                    Saya selaku orang tua/wali menyatakan bahwa data yang diisi adalah benar, serta menyetujui perlindungan data pribadi anak untuk keperluan administratif sekolah.
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        <button type="submit" className="w-full bg-gradient-to-r from-brand-yellow to-amber-500 text-slate-900 font-bold py-3.5 rounded-xl shadow hover:from-amber-500 hover:to-amber-600 transition text-sm">
+                                            Kirim Pendaftaran PPDB
+                                        </button>
+                                    </form>
+                                )}
+                            </div>
+                        )}
+
+                        {/* 12. ADMIN DASHBOARD PAGE (PROTECTED) */}
+                        {activeTab === 'admin-dashboard' && (
+                            <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
+                                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                    <div>
+                                        <span className="text-xs text-emerald-600 font-bold uppercase">Portal CMS Admin</span>
+                                        <h2 className="text-2xl font-bold text-slate-800">Dashboard Pengelolaan Website</h2>
+                                    </div>
+                                    <button onClick={() => setIsAdminLoggedIn(false)} className="bg-red-50 text-red-600 text-xs font-bold px-4 py-2 rounded-xl hover:bg-red-100">
+                                        Keluar Admin
+                                    </button>
+                                </div>
+
+                                {/* Quick Stats Admin */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center">
+                                        <p className="text-xs text-slate-400">Total Berita</p>
+                                        <p className="text-2xl font-bold text-brand-blue">{news.length}</p>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center">
+                                        <p className="text-xs text-slate-400">Pengumuman</p>
+                                        <p className="text-2xl font-bold text-amber-600">{announcements.length}</p>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center">
+                                        <p className="text-xs text-slate-400">Data Guru</p>
+                                        <p className="text-2xl font-bold text-emerald-600">{teachers.length}</p>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center">
+                                        <p className="text-xs text-slate-400">Pendaftar PPDB</p>
+                                        <p className="text-2xl font-bold text-indigo-600">{ppdbApplicants.length}</p>
+                                    </div>
+                                </div>
+
+                                {/* Editable School Info Form */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                    <h3 className="font-bold text-slate-800 text-lg border-b pb-2">Edit Informasi Identitas Sekolah</h3>
+                                    <div className="grid md:grid-cols-2 gap-4 text-xs">
+                                        <div>
+                                            <label className="block font-medium mb-1">NPSN Resmi</label>
+                                            <input 
+                                                type="text" 
+                                                value={profile.npsn} 
+                                                onChange={(e) => setProfile({...profile, npsn: e.target.value})}
+                                                className="w-full p-2 border rounded-lg"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block font-medium mb-1">Status Akreditasi</label>
+                                            <input 
+                                                type="text" 
+                                                value={profile.accreditation} 
+                                                onChange={(e) => setProfile({...profile, accreditation: e.target.value})}
+                                                className="w-full p-2 border rounded-lg"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block font-medium mb-1">Sambutan Kepala Sekolah</label>
+                                            <textarea 
+                                                rows="3" 
+                                                value={profile.headmasterSpeech} 
+                                                onChange={(e) => setProfile({...profile, headmasterSpeech: e.target.value})}
+                                                className="w-full p-2 border rounded-lg"
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => saveProfile(profile)} className="bg-brand-blue text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-900">
+                                        Simpan Perubahan Profil
+                                    </button>
+                                </div>
+
+                                {/* PPDB Applicants Table */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                    <h3 className="font-bold text-slate-800 text-lg border-b pb-2">Verifikasi Pendaftar PPDB Online</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50 border-b">
+                                                    <th className="p-3">Kode</th>
+                                                    <th className="p-3">Nama Siswa</th>
+                                                    <th className="p-3">Jenis Kelamin</th>
+                                                    <th className="p-3">Orang Tua</th>
+                                                    <th className="p-3">Status</th>
+                                                    <th className="p-3">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {ppdbApplicants.map((app) => (
+                                                    <tr key={app.id} className="border-b hover:bg-slate-50">
+                                                        <td className="p-3 font-mono font-bold">{app.id}</td>
+                                                        <td className="p-3 font-bold">{app.studentName}</td>
+                                                        <td className="p-3">{app.gender}</td>
+                                                        <td className="p-3">{app.parentName} ({app.parentPhone})</td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${app.status === 'Verified' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                                                                {app.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const updated = ppdbApplicants.map(a => a.id === app.id ? {...a, status: 'Verified'} : a);
+                                                                    setPpdbApplicants(updated);
+                                                                    showToast(`Pendaftaran ${app.studentName} diverifikasi!`);
+                                                                }} 
+                                                                className="text-emerald-600 hover:underline font-bold"
+                                                            >
+                                                                Verifikasi
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* AI Chatbot Widget */}
+                    <div className="fixed bottom-5 right-5 z-50">
+                        {aiChatOpen ? (
+                            <div className="bg-white w-80 md:w-96 rounded-3xl shadow-2xl border border-slate-200 flex flex-col h-[420px] overflow-hidden animate-fade-in">
+                                <div className="bg-gradient-to-r from-brand-blue to-blue-900 text-white p-4 flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center text-slate-900 font-bold text-xs">
+                                            AI
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-xs">Sahabat Belajar SDN 4 Menceh</p>
+                                            <p className="text-[10px] text-slate-200">Asisten Cerdas Sekolah</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setAiChatOpen(false)} className="text-white hover:text-amber-300">
+                                        ✕
+                                    </button>
+                                </div>
+                                <div className="flex-grow p-4 overflow-y-auto space-y-3 custom-scrollbar text-xs bg-slate-50">
+                                    {chatMessages.map((m, idx) => (
+                                        <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`p-3 rounded-2xl max-w-[80%] ${m.sender === 'user' ? 'bg-brand-blue text-white rounded-br-none' : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'}`}>
+                                                {m.text}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {chatLoading && (
+                                        <div className="text-slate-400 text-[10px] italic">Sahabat Belajar sedang mengetik...</div>
+                                    )}
+                                </div>
+                                <div className="p-2 bg-white border-t border-slate-100 flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Tanyakan jadwal, info sekolah..." 
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                        className="flex-grow p-2 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                                    />
+                                    <button onClick={handleSendMessage} className="bg-brand-blue text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-900">
+                                        Kirim
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={() => setAiChatOpen(true)}
+                                className="bg-gradient-to-r from-brand-yellow to-amber-500 text-slate-900 font-bold p-3.5 rounded-full shadow-2xl flex items-center gap-2 hover:scale-105 transition border-2 border-white"
+                            >
+                                <i data-lucide="bot" className="w-6 h-6"></i>
+                                <span className="text-xs font-bold hidden sm:inline">Tanya Sahabat AI</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Admin Login Modal */}
+                    {showLoginModal && (
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                            <div className="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-fade-in">
+                                <div className="flex justify-between items-center border-b pb-3">
+                                    <h3 className="font-bold text-slate-800 text-base">Masuk Portal Admin</h3>
+                                    <button onClick={() => setShowLoginModal(false)} className="text-slate-400">✕</button>
+                                </div>
+                                <form onSubmit={handleAdminLogin} className="space-y-3">
+                                    <div>
+                                        <label className="block text-xs text-slate-600 mb-1 font-medium">Username</label>
+                                        <input 
+                                            type="text" 
+                                            required 
+                                            value={adminUsername}
+                                            onChange={(e) => setAdminUsername(e.target.value)}
+                                            className="w-full p-2.5 border rounded-xl text-xs focus:outline-none"
+                                            placeholder="admin"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-slate-600 mb-1 font-medium">Password</label>
+                                        <input 
+                                            type="password" 
+                                            required 
+                                            value={adminPassword}
+                                            onChange={(e) => setAdminPassword(e.target.value)}
+                                            className="w-full p-2.5 border rounded-xl text-xs focus:outline-none"
+                                            placeholder="sakra4321"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 italic">*Demo Credential: admin / sakra4321</p>
+                                    <button type="submit" className="w-full bg-brand-blue text-white py-2.5 rounded-xl font-bold text-xs hover:bg-blue-900">
+                                        Login Admin
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {}
+                    <footer className="bg-slate-900 text-slate-300 py-12 px-4 border-t border-slate-800 text-xs">
+                        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center text-slate-900 font-extrabold text-sm">
+                                        SD
+                                    </div>
+                                    <span className="font-bold text-white text-sm">{profile.name}</span>
+                                </div>
+                                <p className="text-slate-400 text-xs leading-relaxed">{profile.slogan}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-white text-sm mb-3">Navigasi Cepat</h4>
+                                <ul className="space-y-2 text-xs">
+                                    <li><button onClick={() => setActiveTab('profil')} className="hover:text-brand-yellow">Profil Sekolah</button></li>
+                                    <li><button onClick={() => setActiveTab('guru')} className="hover:text-brand-yellow">Guru & Tendik</button></li>
+                                    <li><button onClick={() => setActiveTab('berita')} className="hover:text-brand-yellow">Berita Sekolah</button></li>
+                                    <li><button onClick={() => setActiveTab('ppdb')} className="hover:text-brand-yellow">Informasi PPDB</button></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-white text-sm mb-3">Kontak Resmi</h4>
+                                <p className="text-xs text-slate-400">{profile.address}</p>
+                                <p className="text-xs text-slate-400 mt-2">Kabupaten Lombok Timur, NTB</p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-white text-sm mb-3">Hak Akses & Keamanan</h4>
+                                <p className="text-xs text-slate-400">Website resmi dikelola oleh tim admin {profile.name}. Data pendaftaran dilindungi sesuai kebijakan privasi.</p>
+                            </div>
+                        </div>
+                        <div className="max-w-7xl mx-auto mt-8 pt-6 border-t border-slate-800 text-center text-slate-500 text-[11px]">
+                            © 2026 {profile.name}. Hak cipta dilindungi.
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
